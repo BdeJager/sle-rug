@@ -24,8 +24,14 @@ void compile(AForm f) {
   writeFile(f.src[extension="html"].top, writeHTMLString(form2html(f)));
 }
 
+/* Note Brian: From this point on I do not have the time to implement it further. 
+* I've waited for 2 weeks on 2 mails with questions, followed by a week where I've spent a lot of time to at least make something work.
+*/
 HTMLElement form2html(AForm f) {
-  return html([]);
+  list[HTMLElement] header = [\data("See note in Compile.rsc file")];
+  return html(
+    header
+  );
 }
 
 str form2js(AForm f) {

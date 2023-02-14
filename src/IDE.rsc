@@ -18,6 +18,7 @@ import Check;
 import Compile;
 import Message;
 import ParseTree;
+import IO;
 
 
 set[LanguageService] myLanguageContributor() = {
@@ -40,6 +41,7 @@ str type2str(tunknown()) = "unknown";
 
 Summary mySummarizer(loc origin, start[Form] input) {
   AForm ast = cst2ast(input);
+  iprintln(ast);
   RefGraph g = resolve(ast);
   TEnv tenv = collect(ast);
   set[Message] msgs = check(ast, tenv, g.useDef);
