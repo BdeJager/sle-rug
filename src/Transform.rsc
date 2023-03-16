@@ -29,7 +29,34 @@ import AST;
  */
  
 AForm flatten(AForm f) {
+  list[AQuestion] quests = [];
+  for(q <- f.questions) {
+    quests += flattenQuestion(q, boole(true));
+  }
+  f.questions = quests;
   return f; 
+}
+
+AQuestion flattenQuestion(AQuestion q, AExpr expr) {
+  switch(q) {
+    case question(_, _, _): return expr_if(expr, [q]);
+    case computed_question(_, _, _, _): return expr_if(expr, [q]);
+    case expr_if(AExpr if_expr, list[AQuestion] if_questions): {
+      for(if_ques <- if_questions) {
+        return flattenQuestion(if_ques, and(expr, brackets(if_expr)));
+      }
+    }
+    case expr_ifelse(AExpr if_expr, list[AQuestion] if_questions, list[AQuestion] else_questions): {
+      for(if_ques <- if_questions) {
+        return flattenQuestion(if_ques, and(expr, brackets(if_expr)));
+      }
+      for(else_ques <- else_questions) {
+        return flattenQuestion(else_ques, and(expr, brackets(if_expr)));
+      }
+    }
+  }
+  // should not happen
+  return expr_if(expr, []);
 }
 
 /* Rename refactoring:
@@ -40,7 +67,17 @@ AForm flatten(AForm f) {
  */
  
 start[Form] rename(start[Form] f, loc useOrDef, str newName, UseDef useDef) {
-   return f; 
+  set[loc] uses = {};
+  if (useOrDef in useDef<1>) {
+    uses += {loca | <loc loca, useOrDef> <- useDef};
+  }
+  if (useOrDef in useDef<0>) {
+    uses = {loca | <useOrDef, loc loca> <- useDef};
+  }
+  visit(f) {
+    case Id id => [Id]newName when id.src in uses
+  }
+  return f; 
 } 
  
  
